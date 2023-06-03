@@ -1,14 +1,20 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const mongoose = require('mongoose');
+const connectDB = require('./config/dbConnection');
 const allowedOrigins = require('./config/corsOrigin');
 const PORT = process.env.PORT || 3500;
-
+connectDB();
 const logger = require('./middleware/logEvents/logger');
 const errLog = require('./middleware/logEvents/errLog');
+const logEvent = require('./middleware/logEvents/logEvent');
 app.use(logger);
+
+console.log(process.env.NODE_DEV);
 app.use(cors(allowedOrigins)); //allow cross site visit
 // app.use(path, middleware, callback);
 app.use(express.json()); //parse the json data
@@ -29,5 +35,17 @@ app.all('*', (req, res) => {
 });
 
 app.use(errLog);
+app.use(errLog);
+mongoose.connection.once('open', () => {
+  console.log('Connected to MongoDB');
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+});
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+//to listen for the mongoose when error appears
+mongoose.connection.on('error', (err) => {
+  console.log(err);
+  logEvent(
+    `${err.no}: ${err.code}\t${err.syscall}\t${err.hostname}`,
+    'mongoError.log'
+  );
+});
