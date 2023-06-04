@@ -14,15 +14,16 @@ const errLog = require('./middleware/logEvents/errLog');
 const logEvent = require('./middleware/logEvents/logEvent');
 app.use(logger);
 
-console.log(process.env.NODE_DEV);
 app.use(cors(allowedOrigins)); //allow cross site visit
 // app.use(path, middleware, callback);
 app.use(express.json()); //parse the json data
 app.use(cookieParser()); //parse the cookies
 // app.use(express.static('public')) both ok
 app.use('/', express.static(path.join(__dirname, 'public'))); //when use static files, we need to add the completed path
-app.use('/', require('./routes/root'));
 
+app.use('/', require('./routes/root'));
+app.use('/users', require('./routes/userRoutes'));
+app.use('/notes', require('./routes/noteRoutes'));
 app.all('*', (req, res) => {
   res.status(404);
   if (req.accepts('html')) {
@@ -34,7 +35,6 @@ app.all('*', (req, res) => {
   }
 });
 
-app.use(errLog);
 app.use(errLog);
 mongoose.connection.once('open', () => {
   console.log('Connected to MongoDB');

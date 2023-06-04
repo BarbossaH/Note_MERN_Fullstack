@@ -2,7 +2,7 @@ const logEvent = require('./logEvent');
 
 const errLog = (err, req, res, next) => {
   logEvent(
-    `${err.name}: ${err.message}\t${req.method}\t${req.url}\t${req.headers.origin}\t`,
+    `${err.name}: ${err.message}\t${req.method}\t${req.url}\t${req.headers.origin}\n`,
     'errLog.log'
   );
 
