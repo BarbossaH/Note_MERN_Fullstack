@@ -42,7 +42,23 @@ const addNote = asyncHandler(async (req, res) => {
   }
 });
 
-const deleteNote = asyncHandler(async (req, res) => {});
+const deleteNote = asyncHandler(async (req, res) => {
+  const { id } = req.body;
+  if (!id) {
+    return res.status(400).json({ message: `ID is required` });
+  }
+  const theNote = await Note.findById(id).exec();
+  if (theNote) {
+    const result = await theNote.deleteOne();
+    if (result) {
+      return res.json({ message: `${result.title} has been deleted.` });
+    } else {
+      return res.status(400).json({ message: 'Fail to delete' });
+    }
+  } else {
+    return res.status(400).json({ message: 'Note not found' });
+  }
+});
 
 const updateNote = asyncHandler(async (req, res) => {
   const { id, user, title, text, completed } = req.body;
